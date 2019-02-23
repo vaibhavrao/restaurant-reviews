@@ -2,12 +2,13 @@ const CACHE_VERSION = 1;
 const STATIC_CACHE = `static_cache_v${CACHE_VERSION}`;
 const IMAGES_CACHE = `images_cache_v${CACHE_VERSION}`;
 const OTHER_CACHE = `other_cache_v${CACHE_VERSION}`;
-const allCaches = [
-  STATIC_CACHE,
-  IMAGES_CACHE,
-  OTHER_CACHE,
-];
+const allCaches = [ STATIC_CACHE, IMAGES_CACHE, OTHER_CACHE];
 
+/**
+ * Evaluates if a URL used in a Fetch
+ * request is for requesting an Image
+ * @param {string} url 
+ */
 const isImage = url => {
   const img_types = ['png', 'jpg', 'jpeg', 'gif'];
   img_types.forEach(type =>{
@@ -18,16 +19,22 @@ const isImage = url => {
   return false;
 };
 
-const storeInCache = async (cacheName, requestCopy, responseCopy) => {
+/**
+ * Update the Cache 
+*/
+const updateCache = async (cacheName, requestCopy, responseCopy) => {
   const cache = await caches.open(cacheName);
-  // console.log('Updating Cache');
+  console.log('Updating Cache');
   return cache.put(requestCopy, responseCopy);
 };
 
+/**
+ * Install Event Listener
+ */
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(STATIC_CACHE).then(function (cache) {
-      // console.log('Current Cache: ', STATIC_CACHE);
+      console.log('Current Cache: ', STATIC_CACHE);
       return cache.addAll([
         '/',
         '/img/1.jpg',
@@ -48,6 +55,9 @@ self.addEventListener('install', function(event) {
   );
 });
 
+/**
+ * Activate Event Listener
+ */
 self.addEventListener('activate', function(event) {
   event.waitUntil(
     caches.keys().then(function(cacheNames) {
@@ -55,7 +65,7 @@ self.addEventListener('activate', function(event) {
       Promise.all(
         cacheNames.map(function(cacheName) {
           if (!allCaches.includes(cacheName)) {
-            // console.log('Deleting: ', cacheName);
+            console.log('Deleting: ', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -64,6 +74,9 @@ self.addEventListener('activate', function(event) {
   );
 });
 
+/**
+ * Fetch Event Listener
+ */
 self.addEventListener('fetch', function (event) {
   if (event.request.method === 'GET') {
     event.respondWith(
@@ -74,7 +87,7 @@ self.addEventListener('fetch', function (event) {
         try {
           return fetch(event.request).then(function (result) {
             const useCache = isImage(event.request.url) ? IMAGES_CACHE : STATIC_CACHE;
-            storeInCache(useCache, event.request.clone(), result.clone());
+            updateCache(useCache, event.request.clone(), result.clone());
             return result;
           });
         }
