@@ -20,18 +20,14 @@ const isImage = url => {
 
 const storeInCache = async (cacheName, requestCopy, responseCopy) => {
   const cache = await caches.open(cacheName);
-  console.log('------------------------------------');
-  console.log('Updating Cache');
-  console.log('------------------------------------');
+  // console.log('Updating Cache');
   return cache.put(requestCopy, responseCopy);
 };
 
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(STATIC_CACHE).then(function (cache) {
-      console.log('------------------------------------');
-      console.log('Current Cache: ', STATIC_CACHE);
-      console.log('------------------------------------');
+      // console.log('Current Cache: ', STATIC_CACHE);
       return cache.addAll([
         '/',
         '/img/1.jpg',
@@ -55,15 +51,11 @@ self.addEventListener('install', function(event) {
 self.addEventListener('activate', function(event) {
   event.waitUntil(
     caches.keys().then(function(cacheNames) {
-      console.log('------------------------------------');
-      console.log('Clearing Old Caches...', cacheNames, allCaches);
-      console.log('------------------------------------');
+      // console.log('Clearing Old Caches...', cacheNames, allCaches);
       Promise.all(
         cacheNames.map(function(cacheName) {
           if (!allCaches.includes(cacheName)) {
-            console.log('------------------------------------');
-            console.log('Deleting: ', cacheName);
-            console.log('------------------------------------');
+            // console.log('Deleting: ', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -87,9 +79,7 @@ self.addEventListener('fetch', function (event) {
           });
         }
         catch (err) {
-          console.log('------------------------------------');
           console.log('Error: ', err);
-          console.log('------------------------------------');
         }
       })
     );
